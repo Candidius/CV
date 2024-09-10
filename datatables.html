@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Awesome DataTables Example with Two Tables (Bootstrap 5)</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- DataTables Bootstrap 5 CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/dataTables.bootstrap5.min.css">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap 5 JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+    <!-- DataTables Bootstrap 5 JS -->
+    <script src="https://cdn.datatables.net/1.10.25/js/dataTables.bootstrap5.min.js"></script>
+    <!-- SweetAlert2 for cool alerts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Animate.css for cool animations -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <!-- Font Awesome for cool icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"/>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+        .dataTables_wrapper .dataTables_paginate {
+            float: none;
+            text-align: center;
+            padding-top: 1em;
+        }
+        .dataTables_wrapper .dataTables_info {
+            float: none;
+            text-align: left;
+            clear: both;
+            color: #ffffff;
+        }
+        .dataTables_wrapper .dataTables_length {
+            float: left;
+            color: #ffffff;
+        }
+        .selected {
+            background-color: rgba(172, 186, 212, 0.3) !important;
+        }
+        .delete-btn {
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+        .delete-btn:hover {
+            transform: scale(1.05);
+        }
+        thead input {
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+            border-radius: 5px;
+            border: none;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+        .nav-tabs .nav-link {
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+        .nav-tabs .nav-link.active {
+            color: #007bff;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        .column-visibility-btn {
+            margin-right: 5px;
+            margin-bottom: 10px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+        .column-visibility-btn:hover {
+            transform: scale(1.05);
+        }
+        .table {
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .table thead th {
+            background-color: rgba(248, 249, 250, 0.1);
+            border-bottom: 2px solid rgba(222, 226, 230, 0.3);
+            color: #ffffff;
+        }
+        .table tbody tr:hover {
+            background-color: rgba(241, 243, 245, 0.1);
+        }
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            color: #ffffff !important;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: rgba(255, 255, 255, 0.2) !important;
+            border: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5 animate__animated animate__fadeIn">
+        <h1 class="text-center mb-4"><i class="fas fa-table"></i> Super Cool DataTables</h1>
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="table1-tab" data-bs-toggle="tab" data-bs-target="#table1" type="button" role="tab" aria-controls="table1" aria-selected="true"><i class="fas fa-chart-bar"></i> Table 1</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="table2-tab" data-bs-toggle="tab" data-bs-target="#table2" type="button" role="tab" aria-controls="table2" aria-selected="false"><i class="fas fa-chart-pie"></i> Table 2</button>
+            </li>
+        </ul>
+        <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="table1" role="tabpanel" aria-labelledby="table1-tab">
+                <button id="deleteBtn1" class="btn btn-danger delete-btn mt-3" disabled><i class="fas fa-trash-alt"></i> Delete Selected Row</button>
+                <div id="columnVisibility1" class="mt-3"></div>
+                <div class="table-responsive">
+                    <table id="myTable1" class="table table-striped table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th><input type="text" placeholder="Search Name" class="form-control form-control-sm" /></th>
+                                <th><input type="text" placeholder="Search Position" class="form-control form-control-sm" /></th>
+                                <th><input type="text" placeholder="Search Office" class="form-control form-control-sm" /></th>
+                                <th><input type="text" placeholder="Search Age" class="form-control form-control-sm" /></th>
+                                <th><input type="text" placeholder="Search Start date" class="form-control form-control-sm" /></th>
+                                <th><input type="text" placeholder="Search Salary" class="form-control form-control-sm" /></th>
+                                <th><input type="text" placeholder="Search Nationality" class="form-control form-control-sm" /></th>
+                            </tr>
+                            <tr>
+                                <th>Name</th>
+                                <th>Position</th>
+                                <th>Office</th>
+                                <th>Age</th>
+                                <th>Start date</th>
+                                <th>Salary</th>
+                                <th>Nationality</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Tiger Nixon</td>
+                                <td>System Architect</td>
+                                <td>Edinburgh</td>
+                                <td>61</td>
+                                <td>2011/04/25</td>
+                                <td>$320,800</td>
+                                <td>British</td>
+                            </tr>
+                            <tr>
+                                <td>Garrett Winters</td>
+                                <td>Accountant</td>
+                                <td>Tokyo</td>
+                                <td>63</td>
+                                <td>2011/07/25</td>
+                                <td>$170,750</td>
+                                <td>Japanese</td>
+                            </tr>
+                            <tr>
+                                <td>Ashton Cox</td>
+                                <td>Junior Technical Author</td>
+                                <td>San Francisco</td>
+                                <td>66</td>
+                                <td>2009/01/12</td>
+                                <td>$86,000</td>
+                                <td>American</td>
+                            </tr>
+                            <tr>
+                                <td>Cedric Kelly</td>
+                                <td>Senior Javascript Developer</td>
+                                <td>Edinburgh</td>
+                                <td>22</td>
+                                <td>2012/03/29</td>
+                                <td>$433,060</td>
+                                <td>British</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="table2" role="tabpanel" aria-labelledby="table2-tab">
+                <button id="deleteBtn2" class="btn btn-danger delete-btn mt-3" disabled><i class="fas fa-trash-alt"></i> Delete Selected Row</button>
+                <button id="addRowBtn" class="btn btn-success mt-3 ms-2"><i class="fas fa-plus"></i> Add New Row</button>
+                <div id="columnVisibility2" class="mt-3"></div>
+                <div class="table-responsive">
+                    <table id="myTable2" class="table table-striped table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th><input type="text" placeholder="Search Name" class="form-control form-control-sm" /></th>
+                                <th><input type="text" placeholder="Search Position" class="form-control form-control-sm" /></th>
+                                <th><input type="text" placeholder="Search Office" class="form-control form-control-sm" /></th>
+                                <th><input type="text" placeholder="Search Age" class="form-control form-control-sm" /></th>
+                                <th><input type="text" placeholder="Search Start date" class="form-control form-control-sm" /></th>
+                                <th><input type="text" placeholder="Search Salary" class="form-control form-control-sm" /></th>
+                                <th><input type="text" placeholder="Search Nationality" class="form-control form-control-sm" /></th>
+                            </tr>
+                            <tr>
+                                <th>Name</th>
+                                <th>Position</th>
+                                <th>Office</th>
+                                <th>Age</th>
+                                <th>Start date</th>
+                                <th>Salary</th>
+                                <th>Nationality</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Tiger Nixon</td>
+                                <td>System Architect</td>
+                                <td>Edinburgh</td>
+                                <td>61</td>
+                                <td>2011/04/25</td>
+                                <td>$320,800</td>
+                                <td>British</td>
+                            </tr>
+                            <tr>
+                                <td>Garrett Winters</td>
+                                <td>Accountant</td>
+                                <td>Tokyo</td>
+                                <td>63</td>
+                                <td>2011/07/25</td>
+                                <td>$170,750</td>
+                                <td>Japanese</td>
+                            </tr>
+                            <tr>
+                                <td>Ashton Cox</td>
+                                <td>Junior Technical Author</td>
+                                <td>San Francisco</td>
+                                <td>66</td>
+                                <td>2009/01/12</td>
+                                <td>$86,000</td>
+                                <td>American</td>
+                            </tr>
+                            <tr>
+                                <td>Cedric Kelly</td>
+                                <td>Senior Javascript Developer</td>
+                                <td>Edinburgh</td>
+                                <td>22</td>
+                                <td>2012/03/29</td>
+                                <td>$433,060</td>
+                                <td>British</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            function initializeTable(tableId, deleteButtonId, columnVisibilityId) {
+                var table = $(`#${tableId}`).DataTable({
+                    responsive: true,
+                    dom: '<"top"p>rt<"bottom"li>',
+                    orderCellsTop: true,
+                    fixedHeader: true,
+                    language: {
+                        paginate: {
+                            previous: '<i class="fas fa-chevron-left"></i>',
+                            next: '<i class="fas fa-chevron-right"></i>'
+                        }
+                    },
+                    columnDefs: [
+                        {
+                            targets: '_all',
+                            className: 'text-center'
+                        }
+                    ]
+                });
+
+                $(`#${tableId} thead tr:eq(0) th`).each(function (i) {
+                    $('input', this).on('keyup change', function () {
+                        if (table.column(i).search() !== this.value) {
+                            table
+                                .column(i)
+                                .search(this.value)
+                                .draw();
+                        }
+                    });
+                });
+
+                $(`#${tableId} tbody`).on('click', 'tr', function() {
+                    if ($(this).hasClass('selected')) {
+                        $(this).removeClass('selected');
+                        $(`#${deleteButtonId}`).prop('disabled', true);
+                    } else {
+                        table.$('tr.selected').removeClass('selected');
+                        $(this).addClass('selected');
+                        $(`#${deleteButtonId}`).prop('disabled', false);
+                    }
+                });
+
+                $(`#${deleteButtonId}`).click(function() {
+                    var selectedRow = table.row('.selected');
+                    if (selectedRow.any()) {
+                        Swal.fire({
+                            title: 'Are you sure?',
+                            text: "You won't be able to revert this!",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Yes, delete it!'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                selectedRow.remove().draw(false);
+                                $(`#${deleteButtonId}`).prop('disabled', true);
+                                Swal.fire({
+                                    title: 'Deleted!',
+                                    text: 'The selected row has been deleted.',
+                                    icon: 'success',
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                });
+                            }
+                        });
+                    }
+                });
+
+                // Add column visibility toggle buttons
+                table.columns().every(function (index) {
+                    var column = this;
+                    var btn = $('<button type="button" class="btn btn-sm btn-outline-primary column-visibility-btn">' + $(column.header()).text() + '</button>')
+                        .appendTo($(`#${columnVisibilityId}`))
+                        .on('click', function () {
+                            var visible = column.visible();
+                            column.visible(!visible);
+                            $(this).toggleClass('btn-outline-primary btn-primary');
+                        });
+                });
+
+                return table;
+            }
+
+            var table1 = initializeTable('myTable1', 'deleteBtn1', 'columnVisibility1');
+            var table2 = initializeTable('myTable2', 'deleteBtn2', 'columnVisibility2');
+
+            $('#addRowBtn').click(function() {
+                Swal.fire({
+                    title: 'Add New Row',
+                    html:
+                        '<input id="swal-input1" class="swal2-input" placeholder="Name">' +
+                        '<input id="swal-input2" class="swal2-input" placeholder="Position">' +
+                        '<input id="swal-input3" class="swal2-input" placeholder="Office">' +
+                        '<input id="swal-input4" class="swal2-input" placeholder="Age">' +
+                        '<input id="swal-input5" class="swal2-input" placeholder="Start date">' +
+                        '<input id="swal-input6" class="swal2-input" placeholder="Salary">' +
+                        '<input id="swal-input7" class="swal2-input" placeholder="Nationality">',
+                    focusConfirm: false,
+                    preConfirm: () => {
+                        return [
+                            document.getElementById('swal-input1').value,
+                            document.getElementById('swal-input2').value,
+                            document.getElementById('swal-input3').value,
+                            document.getElementById('swal-input4').value,
+                            document.getElementById('swal-input5').value,
+                            document.getElementById('swal-input6').value,
+                            document.getElementById('swal-input7').value
+                        ]
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        table2.row.add(result.value).draw(false);
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'New row has been added.',
+                            icon: 'success',
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
